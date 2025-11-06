@@ -1,0 +1,55 @@
+
+body
+{
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-end;
+    flex-direction: column;
+    height: 98vh;
+    width: 98.5vw;
+    background-color: rgb(183, 183, 183);
+}
+.content
+{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    height: 100%;
+    width: 50vw;
+    background-color: rgb(255, 121, 121);
+    transition: transform 0.3s ease; 
+            .LoginBox
+            {
+            display: flex;
+            justify-content: space-evenly;
+            align-items: center;
+            flex-direction: column;
+            height: 50vh;
+            width: 30vw;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+            }
+}
+.content.hidden 
+{
+  transform: translateX(100%);       // schiebt es komplett aus dem Screen
+}
+.baseLine
+{
+    width: 25%;
+display: flex;
+align-items: center;
+justify-content: space-between;    
+}
+button
+{
+    background-color: palegreen;
+    color: palegreen;
+}
+button[buttonmat-raised-button]
+{
+    background-color: rgb(132, 231, 132);
+    color: rgb(102, 201, 102)
+}
