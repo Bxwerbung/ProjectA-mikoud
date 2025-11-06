@@ -1,16 +1,19 @@
 <body>
     <div class="content" [class.hidden]="isHidden">
 
-            <div>
-                  login
-            </div>
-            <div class="LoginBox">
 
+            <div class="LoginBox">
+                <h1>login</h1>
+                <div class="MainIconMikuText"> Mikoud</div>
+                <mat-icon class="MainIcon">cloud</mat-icon>
                 <input matInput type="email" placeholder="Username">
                 <input matInput type="password" placeholder="Password">
-                <div class="baseLine">
-                    <mat-icon>login</mat-icon>
-                    <button mat-button color="primary" (click)="onLoginClick()">Enter</button>
+                <div>
+
+                    <button mat-button color="primary" (click)="onLoginClick()">
+                        <mat-icon>login</mat-icon>
+                        Enter
+                    </button>
                 </div>
 
 

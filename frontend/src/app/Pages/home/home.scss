@@ -1,3 +1,5 @@
+@use '../../../styles/variables' as vars;
+
 body
 {
     display: flex;
@@ -6,5 +8,5 @@ body
     flex-direction: column;
     height: 98vh;
     width: 98.5vw;
-    background-color: white
+    background-color: vars.$accent-color;
 }

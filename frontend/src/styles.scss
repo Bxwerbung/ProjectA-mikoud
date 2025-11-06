@@ -1,7 +1,7 @@
-/* You can add global styles to this file, and also import other style files */
+@use 'styles/variables' as vars;
 .fade-in {
   opacity: 0;
-  background-color: white;
+  background-color: vars.$accent-color;
   animation: fadeBody 0.5s forwards;
 }
 
