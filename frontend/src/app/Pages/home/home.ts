@@ -1,18 +1,18 @@
 import { Component,OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
+import { MatCardModule } from '@angular/material/card';
 interface FileLister {
   name: string;
   type: string;
   size: number;
   modifiedDate: Date;
-  updloadedBy: string;
+  updloadedBy: string;     
   file: File;
 }
 
 @Component({
   selector: 'app-home',
-  imports: [CommonModule],
+  imports: [CommonModule,MatCardModule],
   templateUrl: './home.html',
   styleUrl: './home.scss',
 })

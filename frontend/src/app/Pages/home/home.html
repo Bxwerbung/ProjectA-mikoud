@@ -1,11 +1,16 @@
 <body>
-  <div>home Works!</div>
+  <aside>
+    test
+  </aside>
+<div class="content">
 
-  <div *ngFor="let file of testFiles">
+
+  <mat-card *ngFor="let file of testFiles">
     <p>{{ file.name }}</p>
     <p>{{ file.type }}</p>
     <p>{{ file.size }}</p>
     <p>{{ file.modifiedDate }}</p>
     <p>{{ file.updloadedBy }}</p>
-  </div>
+  </mat-card>
+</div>
 </body>
