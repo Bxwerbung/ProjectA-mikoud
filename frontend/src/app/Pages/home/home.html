@@ -2,15 +2,35 @@
   <aside>
     test
   </aside>
-<div class="content">
 
 
-  <mat-card *ngFor="let file of testFiles">
-    <p>{{ file.name }}</p>
-    <p>{{ file.type }}</p>
-    <p>{{ file.size }}</p>
-    <p>{{ file.modifiedDate }}</p>
-    <p>{{ file.updloadedBy }}</p>
-  </mat-card>
-</div>
+  <div class="content">
+    <mat-selection-list #Files> 
+
+@for (item of filetypes; track $index) 
+{
+      <div mat-subheader ><mat-icon>{{ fileTypeIcons[item] }}</mat-icon> {{item}} </div>
+      <mat-divider></mat-divider>
+      @for (file of testFiles; track $index) 
+      {
+        @if (file.type == item) 
+        {
+          <div class="item">
+              <mat-list-option>
+                  <span matListItemTitle>{{file.name}}</span>
+                  <span matListItemLine>example desc.</span>
+              </mat-list-option>
+              <button matButton class="optionsButton" alt=""><mat-icon>more_vert</mat-icon></button>
+          </div>
+        }
+      }
+}
+
+      </mat-selection-list>
+  </div>
+
+<p>
+  Options selected: {{Files.selectedOptions.selected.length}}
+</p>
+
 </body>

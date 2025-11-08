@@ -45,11 +45,15 @@ display: flex;
 align-items: center;
 justify-content: space-between;    
 }
-button
+.MainButton
 {
     width: $widthOfContent;
     height: $heightOfContent;
     background-color: vars.$primary-color;
+    mat-icon,div
+    {
+        color: vars.$text-color;
+    }
 
 }
 input
