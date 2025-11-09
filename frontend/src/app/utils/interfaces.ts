@@ -5,5 +5,5 @@ export interface FileLister {
   size: number;
   modifiedDate: Date;
   updloadedBy: string;     
-  file: File;
+  files: File;
 }

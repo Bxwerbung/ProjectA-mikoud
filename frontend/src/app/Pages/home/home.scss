@@ -10,9 +10,16 @@ body
 }
 aside 
 {
+    display: flex;
+    flex-direction: column;
     width: 10vw;
     background-color: vars.$secondary-color;
-
+    & button 
+    {
+        border: 2px solid vars.$text-color-Reverse;
+        border-color: vars.$primary-color;
+        margin: 10px;
+    }
 }
 .content 
 {
@@ -36,6 +43,8 @@ mat-list
 }
 mat-selection-list
 {
+    max-height: 95vh;
+    overflow: auto;
     background-color: vars.$text-background-color;
     color: vars.$text-color-Reverse;
     border-radius: vars.$border-radius;

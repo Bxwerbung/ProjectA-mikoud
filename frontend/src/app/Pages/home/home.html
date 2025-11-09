@@ -1,34 +1,48 @@
 <body>
   <aside>
-    test
-  </aside>
+    <button mat-raised-button (click)="fileInput.click()" color="primary">Upload</button>
 
+    <button mat-raised-button>Status</button>
+    <button mat-raised-button>Verlauf</button>
+    <button mat-raised-button>Konfiguration</button>
+  </aside>
+    <input
+  #fileInput
+  type="file"
+  (change)="onFileSelected($event)"
+  multiple
+  style="display: none"
+/>
 
   <div class="content">
     <mat-selection-list #Files> 
-
-@for (item of filetypes; track $index) 
-{
-      <div mat-subheader ><mat-icon>{{ fileTypeIcons[item] }}</mat-icon> {{item}} </div>
+  <ng-container *ngFor="let item of filetypes; let i = index">
+      <div mat-subheader>
+        <mat-icon>{{ fileTypeIcons[item] }}</mat-icon> {{ item }}
+      </div>
       <mat-divider></mat-divider>
-      @for (file of testFiles; track $index) 
-      {
-        @if (file.type == item) 
-        {
+
+      <ng-container *ngFor="let file of testFiles">
+        <ng-container *ngIf="file.type === item">
           <div class="item">
-              <mat-list-option>
-                  <span matListItemTitle>{{file.name}}</span>
-                  <span matListItemLine>example desc.</span>
-              </mat-list-option>
-              <button matButton class="optionsButton" alt=""><mat-icon>more_vert</mat-icon></button>
+            <mat-list-option>
+              <span matListItemTitle>{{ file.name }}</span>
+              <span matListItemLine>{{file.size}} Byte</span>
+            </mat-list-option>
+            <button matButton class="optionsButton" alt="">
+              <mat-icon>more_vert</mat-icon>
+            </button>
           </div>
-        }
-      }
-}
+        </ng-container>
+      </ng-container>
+
+    </ng-container>
 
       </mat-selection-list>
   </div>
-
+<ng-template #loading>
+  Lade Dateien...
+</ng-template>
 <p>
   Options selected: {{Files.selectedOptions.selected.length}}
 </p>
