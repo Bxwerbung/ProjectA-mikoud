@@ -1,8 +1,6 @@
 <body>
   <aside>
-    <button mat-raised-button (click)="fileInput.click()" color="primary">Upload</button>
-
-    <button mat-raised-button>Status</button>
+    <button mat-raised-button>datei explorer</button>
     <button mat-raised-button>Verlauf</button>
     <button mat-raised-button>Konfiguration</button>
   </aside>
@@ -16,16 +14,22 @@
 
   <div class="content">
     <mat-selection-list #Files> 
-  <ng-container *ngFor="let item of filetypes; let i = index">
-      <div mat-subheader>
-        <mat-icon>{{ fileTypeIcons[item] }}</mat-icon> {{ item }}
-      </div>
+
+<div mat-subheader>datei explorer</div>
       <mat-divider></mat-divider>
 
       <ng-container *ngFor="let file of testFiles">
-        <ng-container *ngIf="file.type === item">
+
           <div class="item">
-            <mat-list-option>
+            <ng-container *ngIf="fileTypeIcons[file.type]; else otherIcon">
+              <mat-icon>{{ fileTypeIcons[file.type] }}</mat-icon>
+            </ng-container>
+
+            <ng-template #otherIcon>
+              <mat-icon>{{ fileTypeIcons['other'] }}</mat-icon>
+            </ng-template>
+
+            <mat-list-option [value]="file.id">
               <span matListItemTitle>{{ file.name }}</span>
               <span matListItemLine>{{file.size}} Byte</span>
             </mat-list-option>
@@ -33,18 +37,34 @@
               <mat-icon>more_vert</mat-icon>
             </button>
           </div>
-        </ng-container>
+
+
       </ng-container>
 
-    </ng-container>
 
       </mat-selection-list>
   </div>
 <ng-template #loading>
   Lade Dateien...
 </ng-template>
+
+<aside style="width: 20vw ">
 <p>
   Options selected: {{Files.selectedOptions.selected.length}}
 </p>
+<div>IDs: {{ selectedIds }}</div>
 
-</body>
+    <button mat-raised-button (click)="fileInput.click()" color="primary">Upload</button>
+
+    <button mat-raised-button (click)="this.downloadQueue(selectedIds)" >Runterladen</button>
+
+    <button
+  mat-raised-button
+  (click)="deleteQueue(selectedIds)"
+  [color]="wantDelete ? 'warn' : 'primary'"
+>
+  {{ wantDelete ? 'Löschen?' : 'Löschen' }}
+</button>
+
+  </aside>
+  </body>

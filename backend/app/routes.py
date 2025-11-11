@@ -1,4 +1,5 @@
-from fastapi import APIRouter, UploadFile, File, Form, HTTPException # <-- HIER FEHLT HTTPException!
+from fastapi import APIRouter, UploadFile, File, Form, HTTPException,WebSocket
+import asyncio
 from datetime import datetime
 from typing import List, Dict
 from pydantic import BaseModel
@@ -6,7 +7,7 @@ import sqlite3
 import json
 import os
 import shutil
-
+from starlette.responses import FileResponse
 import time
 router = APIRouter()
 DATABASE_URL = "Main.db"  # Pfad zu deiner SQLite-Datei
@@ -107,7 +108,39 @@ class MetaItem(BaseModel):
     modifiedDate: datetime  
     uploadedBy: str
 
+def get_items_from_db():
+    conn = get_db()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("SELECT * FROM items")
+        rows = cursor.fetchall()
+        return [dict(row) for row in rows]
+    finally:
+        conn.close()
 
+
+connections = []
+@router.websocket("/ws/items")
+async def ws_items(websocket: WebSocket):
+    await websocket.accept()
+    connections.append(websocket)
+    try:
+        while True:
+            await websocket.receive_text()
+    finally:
+        connections.remove(websocket)
+async def broadcast_items(items):
+    dead = []
+    for ws in connections:
+        try:
+            await ws.send_json(items)
+        except Exception:
+            dead.append(ws)
+
+    # geschlossene Sockets entfernen
+    for ws in dead:
+        connections.remove(ws)
+        
 @router.get("/items")
 async def get_items() -> List[Dict]:
     conn = get_db()
@@ -130,12 +163,50 @@ async def get_items() -> List[Dict]:
     finally:
         conn.close()
 
-@router.get("/items/{item_id}")
-async def get_item(item_id: int):
-    for item in items:
-        if item["id"] == item_id:
-            return item
-    return {"error": "Item not found"}
+@router.get("/items/{item_id}/download")
+async def download_item(item_id: int):
+    """
+    Sucht den Server-Pfad der Datei anhand der Item-ID und sendet die Datei
+    als Anhang (Download) an den Client zurück.
+    """
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    try:
+        # 1. Den Dateipfad und den Originalnamen aus der DB abrufen
+        cursor.execute("SELECT server_path, name FROM items WHERE id = ?", (item_id,))
+        result = cursor.fetchone()
+        
+        if result is None:
+            raise HTTPException(status_code=404, detail=f"Item mit ID {item_id} nicht in der Datenbank gefunden.")
+        
+        server_path = result['server_path']
+        original_filename = result['name']
+        
+        # 2. Prüfen, ob die physische Datei auf dem Server existiert
+        if not os.path.exists(server_path):
+            # Logge den Fehler auf dem Server, wenn die Datei fehlt
+            print(f"ERROR: Physische Datei nicht gefunden unter Pfad: {server_path}")
+            raise HTTPException(status_code=404, detail="Datei wurde auf dem Server nicht gefunden. (DB-Eintrag existiert, aber File fehlt.)")
+        
+        # 3. Datei als FileResponse zurückgeben
+        # media_type wird automatisch erraten (oder Sie können es festlegen, z.B. "image/png")
+        return FileResponse(
+            path=server_path, 
+            filename=original_filename, # Fügt den "Content-Disposition: attachment; filename=..." Header hinzu
+            media_type=mime or 'application/octet-stream'
+        )
+
+    except HTTPException as http_exc:
+        # 404 Fehler durchlassen
+        raise http_exc
+        
+    except Exception as e:
+        print(f"FATAL ERROR DURING DOWNLOAD: {e}")
+        raise HTTPException(status_code=500, detail="Ein interner Fehler ist beim Herunterladen der Datei aufgetreten.")
+        
+    finally:
+        conn.close()
 
 
 
@@ -193,7 +264,12 @@ async def upload_item_and_save(
             })
 
         conn.commit()
-        
+        cursor.execute("SELECT * FROM items")
+        rows = cursor.fetchall()
+        updated_items = [dict(row) for row in rows]
+
+        # Broadcast
+        asyncio.create_task(broadcast_items(updated_items))
     except Exception as e:
 
         conn.rollback()
@@ -213,38 +289,36 @@ async def delete_item(item_id: int):
     conn = get_db()
     cursor = conn.cursor()
     server_path = None
-    
+
     try:
         cursor.execute("SELECT server_path FROM items WHERE id = ?", (item_id,))
         result = cursor.fetchone()
-        
+
         if result is None:
             raise HTTPException(status_code=404, detail=f"Item mit ID {item_id} nicht gefunden.")
-        
-        server_path = result['server_path']
 
-        cursor.execute("DELETE FROM items WHERE id = ?", (item_id,))        
-        try:
-            if os.path.exists(server_path):
-                os.remove(server_path)
-            else:
-                print(f"WARNUNG: Physische Datei existiert nicht mehr unter {server_path}. Lösche DB-Eintrag trotzdem.")
+        server_path = result["server_path"]
 
-        except OSError as e:
-            print(f"FEHLER beim Löschen der Datei {server_path}: {e}")
-            raise HTTPException(status_code=500, detail=f"Datenbank gelöscht, aber Fehler beim Löschen der Datei auf dem Server.")
+        cursor.execute("DELETE FROM items WHERE id = ?", (item_id,))
+
+        if os.path.exists(server_path):
+            os.remove(server_path)
+
         conn.commit()
-        
-        return {"status": "success", "message": f"Item mit ID {item_id} und zugehörige Datei erfolgreich gelöscht."}
 
-    except HTTPException as http_exc:
+        # aktuelle Daten holen
+        cursor.execute("SELECT * FROM items")
+        rows = cursor.fetchall()
+        updated_items = [dict(row) for row in rows]
+
+        # Broadcast bewusst auslösen
+        asyncio.create_task(broadcast_items(updated_items))
+
+        return {"status": "success"}
+
+    except Exception:
         conn.rollback()
-        raise http_exc
-        
-    except Exception as e:
-        conn.rollback()
-        print(f"FATAL ERROR DURING DELETE: {e}")
-        raise HTTPException(status_code=500, detail="Ein interner Serverfehler ist aufgetreten. Transaktion rückgängig gemacht.")
-        
+        raise
+
     finally:
         conn.close()

@@ -1,15 +1,30 @@
-export type Filetypes = "pdf" | "docx" | "xlsx" | "png" | "jpg" | "txt" | "mp4" | "mp3" | "zip" | "rar"| "other" ;
-export const FILETYPE_ICONS: Record<Filetypes, string> = 
-{
-  pdf:  "picture_as_pdf",
-  docx: "description",
-  xlsx: "grid_on",
-  png:  "image",
-  jpg:  "image",
-  txt:  "article",
-  mp4:  "videocam",
-  mp3:  "audiotrack",
-  zip:  "folder_zip",
-  rar:  "folder_zip",
-  other: "insert_drive_file"
+export type Filetypes =
+  | "application/pdf"
+  | "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+  | "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  | "image/png"
+  | "image/jpeg"
+  | "text/plain"
+  | "video/mp4"
+  | "audio/mpeg"
+  | "application/zip"
+  | "application/vnd.rar"
+  | "application/x-msdownload"
+  | "other";
+
+export const FILETYPE_ICONS: Record<Filetypes, string> = {
+  "application/pdf": "picture_as_pdf",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+    "description",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
+    "grid_on",
+  "image/png": "image",
+  "image/jpeg": "image",
+  "text/plain": "article",
+  "video/mp4": "videocam",
+  "audio/mpeg": "audiotrack",
+  "application/zip": "folder_zip",
+  "application/vnd.rar": "folder_zip",
+  "application/x-msdownload": "terminal",
+  other: "insert_drive_file",
 };
