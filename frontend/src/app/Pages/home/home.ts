@@ -1,5 +1,6 @@
 import { ChangeDetectorRef, Component, OnInit,ViewChild,NgZone   } from '@angular/core';
 import { FileLister } from '../../utils/interfaces';
+import { environment } from '../../environment/envorment';
 import {Filetypes,FILETYPE_ICONS} from '../../utils/types';
 import { CommonModule, provideCloudinaryLoader } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
@@ -24,8 +25,8 @@ import { R } from '@angular/cdk/keycodes';
   styleUrl: './home.scss',
 })
 export class Home implements OnInit {
-  private baseUrl: string = 'http://192.168.0.93:8000'
-
+  private baseUrl: string = environment.apiUrl;
+  currentUser: string = "test user";
 
   constructor
   (
@@ -49,7 +50,6 @@ public testFiles: FileLister[] = [];
 
 
 
-currentUser: string = "test user";
 
   getData()
   {
@@ -105,8 +105,8 @@ const formData = new FormData();
 
   // 4. Zusätzliche Daten
   formData.append("code", "200");
-
-  this.http.post('http://192.168.0.93:8000/items', formData).subscribe({
+  this.http.post(`${this.baseUrl}/items`
+, formData).subscribe({
     next: (response) => {
       Logger("info", 'Antwort vom Backend:', response);
       this.getData();
@@ -143,19 +143,15 @@ downloadQueue(ids: number[]) {
       return;
     }
 
-    const id = queue.shift()!;
-    const url = `http://192.168.0.93:8000/items/${id}/download`;
-    const id3 = 32    
-    // 🎯 Hier wird die korrekte Funktion aufgerufen
+    const id = queue.shift()!;`/items`
+    const url = `${this.baseUrl}/items/${id}/download`;
     const filename = getItemFilenameById(id); 
 
     this.http.get<Blob>(url, {
       responseType: "blob" as 'json',
       observe: "response" 
     }).subscribe({
-      // ... (Rest der subscribe-Logik) ...
       next: (response) => {
-        // ... (Blob-Erstellung und Klick-Logik) ...
         const blob = response.body; 
         
         if (blob) {
@@ -163,7 +159,6 @@ downloadQueue(ids: number[]) {
             const link = document.createElement("a");
             link.href = urlBlob;
             
-            // 🎯 Der Name ist nun garantiert der Originalname
             link.download = filename; 
             
             document.body.appendChild(link);
@@ -195,7 +190,6 @@ deleteQueue(ids: number[]) {
   if (!this.wantDelete) {
     this.wantDelete = true;
 
-    // Timer setzen
     this.deleteTimeout = setTimeout(() => {
       this.wantDelete = false;
       this.deleteTimeout = null;

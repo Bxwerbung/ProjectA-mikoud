@@ -1,1 +1,5 @@
-Baseurl:"http://127.0.0.1:8000/"
+export const environment = {
+  production: false,
+  apiUrl: 'http://192.168.0.93:8000',
+  apiIP:'192.168.0.93'
+};
